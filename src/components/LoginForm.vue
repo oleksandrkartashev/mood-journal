@@ -1,9 +1,5 @@
 <template>
-  <Form
-    class="form flex flex-col space-y-4"
-    @submit="onSubmit"
-    :validation-schema="schema"
-  >
+  <Form class="form" @submit="onSubmit" :validation-schema="schema">
     <div class="form-group">
       <label for="email" class="form-label">Your email</label>
       <Field
@@ -25,7 +21,7 @@
       <ErrorMessage name="password" class="form-message" />
     </div>
     <div class="form-group">
-      <button type="submit" class="form-btn" @click="onSubmit">Login</button>
+      <button type="submit" class="form-btn">Login</button>
     </div>
     <div class="form-group">
       <div v-if="responseMessage" class="form-response">
@@ -39,21 +35,12 @@
 import { ref, computed, onMounted } from "vue";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
-import { useStore } from "vuex";
+import { useAuthStore } from "@/store/user";
+import { User } from "@/types";
 import { useRouter } from "vue-router";
 
-const store = useStore();
+const userStore = useAuthStore();
 const router = useRouter();
-
-interface FormDataType {
-  email: string;
-  password: string;
-}
-
-const form = ref<FormDataType>({
-  email: "",
-  password: "",
-});
 
 const responseMessage = ref<string | null>(null);
 
@@ -65,31 +52,29 @@ const schema = yup.object({
     .min(8),
 });
 
-const loggedIn = computed<boolean>(() => {
-  return store.getters["auth/userLoggedIn"];
-});
+const isAuthenticated = computed<boolean>(() => userStore.getUserAuthStatus);
 
-const handleLogin = async (userCreds: FormDataType) => {
+const handleLogin = async (userCreds: User) => {
   try {
-    await store.dispatch("auth/login", userCreds);
+    await userStore.actionLogin(userCreds);
     router.push("/");
   } catch (error: any) {
-    const message = `${error.code} ${error.response.status}`;
+    const message = `${error.code} ${error.message}`;
     responseMessage.value = message;
   }
 };
 
-const onSubmit = () => {
+const onSubmit = (values) => {
   schema
-    .validate(form.value)
-    .then(() => handleLogin(form.value))
+    .validate(values)
+    .then(() => handleLogin(values))
     .catch((error) => {
       console.error("Validation errors:", error);
     });
 };
 
 onMounted(() => {
-  if (loggedIn.value) {
+  if (isAuthenticated.value) {
     router.push("/");
   }
 });
@@ -97,6 +82,7 @@ onMounted(() => {
 
 <style scoped>
 .form {
+  @apply flex flex-col space-y-4;
 }
 .form-input {
   @apply border border-gray-300 rounded-md p-2 w-full;
@@ -107,7 +93,8 @@ onMounted(() => {
 .form-label {
   @apply block text-sm leading-[1.43] mb-[8px] font-medium;
 }
-.form-message {
+.form-message,
+.form-response {
   @apply text-sm leading-none text-[#ff3232] font-medium;
 }
 </style>

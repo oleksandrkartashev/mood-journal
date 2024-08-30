@@ -9,7 +9,7 @@
           improve your moods over time
         </p>
       </div>
-      <div class="auth-buttons">
+      <div class="auth-buttons" v-if="!isAuthenticated">
         <router-link :to="{ name: 'login' }" class="button auth-btn"
           >Login</router-link
         >
@@ -19,7 +19,12 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from "vue";
+import { useAuthStore } from "@/store/user";
 import Logo from "@/components/Logo.vue";
+
+const userStore = useAuthStore();
+const isAuthenticated = computed<boolean>(() => userStore.getUserAuthStatus);
 </script>
 
 <style scoped>
