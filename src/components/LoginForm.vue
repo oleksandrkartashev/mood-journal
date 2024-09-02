@@ -35,7 +35,7 @@
 import { ref, computed, onMounted } from "vue";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
-import { useAuthStore } from "@/store/user";
+import { useAuthStore } from "@/store/auth";
 import { User } from "@/types";
 import { useRouter } from "vue-router";
 
@@ -57,7 +57,7 @@ const isAuthenticated = computed<boolean>(() => userStore.getUserAuthStatus);
 const handleLogin = async (userCreds: User) => {
   try {
     await userStore.actionLogin(userCreds);
-    router.push("/");
+    router.push("/dashboard");
   } catch (error: any) {
     const message = `${error.code} ${error.message}`;
     responseMessage.value = message;

@@ -19,12 +19,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useAuthStore } from "@/store/user";
 import Logo from "@/components/Logo.vue";
+import { useAuth } from "@/composables/useAuth";
 
-const userStore = useAuthStore();
-const isAuthenticated = computed<boolean>(() => userStore.getUserAuthStatus);
+const { isAuthenticated } = useAuth();
 </script>
 
 <style scoped>

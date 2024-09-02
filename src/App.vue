@@ -1,5 +1,7 @@
 <template>
   <Loader v-if="isLoading" />
+  <Header v-if="$route.meta.showHeader" />
+
   <div class="page">
     <router-view />
   </div>
@@ -7,7 +9,8 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import Loader from "./components/Loader.vue";
+import Loader from "@/components/Loader.vue";
+import Header from "@/components/Header.vue";
 
 const isLoading = ref(true);
 
